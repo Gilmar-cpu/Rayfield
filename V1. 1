@@ -1,0 +1,130 @@
+local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
+
+local Window = Rayfield:CreateWindow({
+   Name = "Karamujoo Hub",
+   Icon = 0,
+   LoadingTitle = "Loading Karamujoo Hub...",
+   LoadingSubtitle = "by Karamujoo",
+   Theme = "Default",
+
+   DisableRayfieldPrompts = false,
+   DisableBuildWarnings = false,
+
+   ConfigurationSaving = {
+      Enabled = false,
+      FolderName = nil,
+      FileName = "KaramujooHubConfig"
+   },
+
+   Discord = {
+      Enabled = false,
+      Invite = "noinvitelink",
+      RememberJoins = true
+   },
+
+   KeySystem = false,
+   KeySettings = {
+      Title = "Karamujoo Hub",
+      Subtitle = "Key System",
+      Note = "No key required",
+      FileName = "Key",
+      SaveKey = true,
+      GrabKeyFromSite = false,
+      Key = {"Hello"}
+   }
+})
+
+--=================== MAIN TAB ===================--
+local MainTab = Window:CreateTab("Main", 4483362458)
+local MainSection = MainTab:CreateSection("Auto")
+
+-- Auto Collect Orbs
+local collecting = false
+local player = game.Players.LocalPlayer
+
+local function autoCollect()
+    while collecting do
+        local char = player.Character or player.CharacterAdded:Wait()
+        local hrp = char:WaitForChild("HumanoidRootPart")
+
+        for _, v in pairs(workspace.orbFolder.City:GetChildren()) do
+            if v:IsA("MeshPart") then
+                firetouchinterest(hrp, v, 0)
+                firetouchinterest(hrp, v, 1)
+            elseif v:IsA("Model") then
+                local gem = v:FindFirstChildWhichIsA("BasePart")
+                if gem then
+                    firetouchinterest(hrp, gem, 0)
+                    firetouchinterest(hrp, gem, 1)
+                end
+            end
+        end
+
+        task.wait(0.2)
+    end
+end
+
+MainTab:CreateToggle({
+    Name = "Auto Collect Orbs",
+    CurrentValue = false,
+    Flag = "AutoCollectToggle",
+    Callback = function(state)
+        collecting = state
+        if collecting then
+            spawn(autoCollect)
+        end
+    end
+})
+
+-- Auto Hatch & Manual Hatch
+local hatching = false
+local remote = game:GetService("ReplicatedStorage").rEvents:FindFirstChild("openCrystalRemote")
+
+-- Auto Hatch Toggle (corrigido)
+MainTab:CreateToggle({
+    Name = "Auto Hatch Red Crystal",
+    CurrentValue = false,
+    Flag = "AutoHatchToggle",
+    Callback = function(state)
+        hatching = state
+        if hatching then
+            task.spawn(function()
+                while hatching do
+                    pcall(function()
+                        remote:InvokeServer("openCrystal", "Red Crystal")
+                    end)
+                    task.wait(0.3)
+                end
+            end)
+        end
+    end
+})           enden        ene
+
+MainTab:CreateButton({
+    Name = "Open 1 Red Crystal",
+    Callback = function()
+        pcall(function()
+            remote:InvokeServer("openCrystal", "Red Crystal")
+        end)
+    end
+})
+
+--=================== SETTINGS TAB ===================--
+local SettingsTab = Window:CreateTab("Settings", 4483362458)
+local SettingsSection = SettingsTab:CreateSection("UI")
+
+SettingsTab:CreateButton({
+    Name = "Reload UI",
+    Callback = function()
+        Rayfield:Destroy()
+        -- Recarregar novamente se quiser
+        -- loadstring(game:HttpGet("URL_DO_SCRIPT"))()
+    end
+})
+
+SettingsTab:CreateButton({
+    Name = "Close UI",
+    Callback = function()
+        Rayfield:Destroy()
+    end
+})
